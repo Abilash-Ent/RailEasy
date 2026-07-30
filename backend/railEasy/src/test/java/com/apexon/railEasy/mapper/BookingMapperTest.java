@@ -1,0 +1,70 @@
+package com.apexon.railEasy.mapper;
+
+import com.apexon.railEasy.constants.BookingStatus;
+import com.apexon.railEasy.constants.TravelClass;
+import com.apexon.railEasy.dto.response.BookingResponse;
+import com.apexon.railEasy.entity.Booking;
+import com.apexon.railEasy.entity.Schedule;
+import com.apexon.railEasy.entity.Train;
+import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class BookingMapperTest {
+
+    private final BookingMapper mapper = Mappers.getMapper(BookingMapper.class);
+
+    private Booking booking() {
+        return Booking.builder().id(10L).pnr("ABC12345").userId(5L).scheduleId(1L)
+                .travelClass(TravelClass.AC_3).seatNumbers("1A, 1B ,1C")
+                .totalFare(BigDecimal.valueOf(4200)).status(BookingStatus.CONFIRMED)
+                .bookedAt(LocalDateTime.of(2026, 7, 28, 10, 30)).build();
+    }
+
+    @Test
+    void toResponse_withScheduleAndTrain_mapsEverything() {
+        Schedule schedule = Schedule.builder().id(1L).fromStation("Chennai").toStation("Mumbai")
+                .journeyDate(LocalDate.of(2026, 8, 15)).build();
+        Train train = Train.builder().id(2L).trainNumber("12621").trainName("Tamil Nadu Express").build();
+
+        BookingResponse response = mapper.toResponse(booking(), schedule, train);
+
+        assertThat(response.getPnr()).isEqualTo("ABC12345");
+        assertThat(response.getTrainNumber()).isEqualTo("12621");
+        assertThat(response.getTrainName()).isEqualTo("Tamil Nadu Express");
+        assertThat(response.getFromStation()).isEqualTo("Chennai");
+        assertThat(response.getToStation()).isEqualTo("Mumbai");
+        assertThat(response.getJourneyDate()).isEqualTo(LocalDate.of(2026, 8, 15));
+        assertThat(response.getSeatNumbers()).containsExactly("1A", "1B", "1C");
+        assertThat(response.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
+    }
+
+    @Test
+    void toResponse_withNullScheduleAndTrain_leavesEnrichedFieldsNull() {
+        BookingResponse response = mapper.toResponse(booking(), null, null);
+
+        assertThat(response.getTrainNumber()).isNull();
+        assertThat(response.getTrainName()).isNull();
+        assertThat(response.getFromStation()).isNull();
+        assertThat(response.getToStation()).isNull();
+        assertThat(response.getJourneyDate()).isNull();
+        assertThat(response.getSeatNumbers()).containsExactly("1A", "1B", "1C");
+    }
+
+    @Test
+    void parseSeats_returnsTrimmedNonEmptyTokens() {
+        assertThat(BookingMapper.parseSeats("1A, 1B ,1C")).containsExactly("1A", "1B", "1C");
+    }
+
+    @Test
+    void parseSeats_returnsEmptyListForNullOrBlank() {
+        assertThat(BookingMapper.parseSeats(null)).isEmpty();
+        assertThat(BookingMapper.parseSeats("   ")).isEmpty();
+    }
+}
+

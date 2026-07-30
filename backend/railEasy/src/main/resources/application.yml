@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: railEasy
+
+  # Spring Data R2DBC with in-memory H2. The named in-memory DB ("raileasy")
+  # is shared JVM-wide so the dev H2 console (TCP) can inspect the same data.
+  r2dbc:
+    url: r2dbc:h2:mem:///raileasy?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    username: sa
+    password:
+#jdbc:h2:tcp://localhost:9092/mem:raileasy
+  # SQL scripts are executed by R2dbcInitializerConfig against the R2DBC
+  # ConnectionFactory, so Boot's own (JDBC-capable) SQL init is disabled here.
+  sql:
+    init:
+      mode: never
+
+server:
+  port: 8080
+
+# Externalized application settings
+raileasy:
+  jwt:
+    # Development-only secret. Override via RAILEASY_JWT_SECRET in real environments.
+    secret: ${RAILEASY_JWT_SECRET:change-this-raileasy-dev-secret-key-please-override-0123456789}
+    expiration-ms: 3600000        # 1 hour
+    issuer: railEasy
+  # NOTE: the default admin account is seeded via src/main/resources/data.sql.
+  cors:
+    # Front-end origins allowed to call the API (supports wildcard patterns).
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:4200
+      - http://localhost:5173
+    allowed-methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+    allowed-headers: ["*"]
+    exposed-headers: [Authorization]
+    allow-credentials: false
+    max-age-seconds: 3600
+
+# OpenAPI / Swagger UI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+logging:
+  level:
+    com.apexon.railEasy: INFO
+    org.springframework.r2dbc: INFO
+

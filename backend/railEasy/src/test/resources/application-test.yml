@@ -1,0 +1,17 @@
+spring:
+  # Isolated in-memory database for tests (separate from the dev "raileasy" DB).
+  r2dbc:
+    url: r2dbc:h2:mem:///raileasy_test?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    username: sa
+    password:
+  # Scripts run via R2dbcInitializerConfig; disable Boot's JDBC-capable SQL init.
+  sql:
+    init:
+      mode: never
+
+raileasy:
+  jwt:
+    secret: test-raileasy-secret-key-please-override-0123456789-abcdef
+    expiration-ms: 3600000
+    issuer: railEasy
+
