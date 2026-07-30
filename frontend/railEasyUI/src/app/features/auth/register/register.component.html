@@ -1,0 +1,78 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-head">
+      <div class="auth-logo">🚆</div>
+      <h1>Create your account</h1>
+      <p class="muted">Join RailEasy and book tickets in seconds.</p>
+    </div>
+
+    <form class="stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label class="label" for="fullName">Full name</label>
+        <input
+          id="fullName"
+          type="text"
+          class="input"
+          placeholder="Jane Traveler"
+          formControlName="fullName"
+          [class.invalid]="form.controls.fullName.touched && form.controls.fullName.invalid"
+        />
+        @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+          <span class="form-error">Please enter your full name.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="label" for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          class="input"
+          placeholder="you@example.com"
+          formControlName="email"
+          [class.invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="form-error">
+            @if (form.controls.email.hasError('required')) { Email is required. }
+            @else { Enter a valid email address. }
+          </span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="label" for="password">Password</label>
+        <div class="password-wrap">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="input"
+            placeholder="At least 6 characters"
+            formControlName="password"
+            [class.invalid]="form.controls.password.touched && form.controls.password.invalid"
+          />
+          <button type="button" class="peek" (click)="togglePassword()">
+            {{ showPassword() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="form-error">Password must be at least 6 characters.</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner" style="width:18px;height:18px;border-width:2px"></span>
+          Creating account…
+        } @else {
+          Create account
+        }
+      </button>
+    </form>
+
+    <p class="auth-alt muted">
+      Already have an account?
+      <a routerLink="/login">Log in</a>
+    </p>
+  </div>
+</div>

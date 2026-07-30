@@ -1,0 +1,136 @@
+<section class="hero">
+  <div class="container">
+    <div class="hero-copy">
+      <span class="badge badge-info">🚄 Fast · Reliable · Easy</span>
+      <h1 class="hero-title">Book train tickets<br />without the hassle</h1>
+      <p class="hero-sub muted">
+        Search live schedules, pick your seats, and travel with confidence.
+      </p>
+    </div>
+
+    <form class="search-card card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="search-grid">
+        <div class="field">
+          <label class="label" for="from">From</label>
+          <input id="from" class="input" placeholder="Origin station"
+                 formControlName="from"
+                 [class.invalid]="form.controls.from.touched && form.controls.from.invalid" />
+        </div>
+
+        <button type="button" class="swap-btn" (click)="swap()" title="Swap stations">⇄</button>
+
+        <div class="field">
+          <label class="label" for="to">To</label>
+          <input id="to" class="input" placeholder="Destination station"
+                 formControlName="to"
+                 [class.invalid]="form.controls.to.touched && form.controls.to.invalid" />
+        </div>
+
+        <div class="field">
+          <label class="label" for="date">Journey date</label>
+          <input id="date" type="date" class="input" [min]="today"
+                 formControlName="date"
+                 [class.invalid]="form.controls.date.touched && form.controls.date.invalid" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg search-submit" [disabled]="loading()">
+          @if (loading()) {
+            <span class="spinner" style="width:18px;height:18px;border-width:2px"></span>
+          } @else {
+            🔍 Search
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="container results-section">
+  @if (loading()) {
+    <div class="stack">
+      @for (i of [1,2,3]; track i) {
+        <div class="card card-pad">
+          <div class="skeleton" style="height: 20px; width: 40%; margin-bottom: 12px"></div>
+          <div class="skeleton" style="height: 44px; width: 100%"></div>
+        </div>
+      }
+    </div>
+  } @else if (searched()) {
+    @if (resultCount() > 0) {
+      <div class="spread results-head">
+        <h2 class="mb-0">Available trains</h2>
+        <span class="badge">{{ resultCount() }} found</span>
+      </div>
+
+      <div class="stack">
+        @for (s of results(); track s.id) {
+          <article class="card card-hover train-card">
+            <div class="train-main">
+              <div class="train-id">
+                <span class="train-name">{{ s.trainName || 'Train' }}</span>
+                @if (s.trainNumber) { <span class="train-no">#{{ s.trainNumber }}</span> }
+              </div>
+
+              <div class="route">
+                <div class="stop">
+                  <span class="time">{{ s.departureTime }}</span>
+                  <span class="station">{{ s.fromStation }}</span>
+                </div>
+                <div class="route-line">
+                  <span class="dot"></span>
+                  <span class="line"></span>
+                  <span class="train-emoji">🚆</span>
+                  <span class="line"></span>
+                  <span class="dot"></span>
+                </div>
+                <div class="stop align-right">
+                  <span class="time">{{ s.arrivalTime }}</span>
+                  <span class="station">{{ s.toStation }}</span>
+                </div>
+              </div>
+
+              <div class="journey-date muted">
+                📅 {{ s.journeyDate | date: 'EEE, MMM d, y' }}
+              </div>
+            </div>
+
+            <div class="train-fares">
+              <div class="fare-chips">
+                <span class="fare-chip"><small>Sleeper</small><strong>₹{{ s.fareSleeper }}</strong></span>
+                <span class="fare-chip"><small>AC 3</small><strong>₹{{ s.fareAc3 }}</strong></span>
+                <span class="fare-chip"><small>AC 2</small><strong>₹{{ s.fareAc2 }}</strong></span>
+              </div>
+              <button class="btn btn-accent btn-block" (click)="book(s)">
+                Select seats →
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="card empty-state">
+        <div class="icon">🔎</div>
+        <h3>No trains found</h3>
+        <p>Try a different route or date.</p>
+      </div>
+    }
+  } @else {
+    <div class="features grid grid-3">
+      <div class="card card-pad feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Instant search</h3>
+        <p class="muted">Find trains between any two stations in real time.</p>
+      </div>
+      <div class="card card-pad feature">
+        <div class="feature-icon">🎫</div>
+        <h3>Pick your seat</h3>
+        <p class="muted">Choose exact seats across Sleeper, AC 3 & AC 2 classes.</p>
+      </div>
+      <div class="card card-pad feature">
+        <div class="feature-icon">📱</div>
+        <h3>Manage anywhere</h3>
+        <p class="muted">View and cancel bookings anytime from your account.</p>
+      </div>
+    </div>
+  }
+</section>

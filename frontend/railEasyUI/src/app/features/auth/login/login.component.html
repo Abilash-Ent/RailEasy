@@ -1,0 +1,66 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-head">
+      <div class="auth-logo">🚆</div>
+      <h1>Welcome back</h1>
+      <p class="muted">Log in to book and manage your train tickets.</p>
+    </div>
+
+    <form class="stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label class="label" for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          class="input"
+          placeholder="you@example.com"
+          formControlName="email"
+          [class.invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="form-error">
+            @if (form.controls.email.hasError('required')) { Email is required. }
+            @else { Enter a valid email address. }
+          </span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="label" for="password">Password</label>
+        <div class="password-wrap">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="input"
+            placeholder="Your password"
+            formControlName="password"
+            [class.invalid]="form.controls.password.touched && form.controls.password.invalid"
+          />
+          <button type="button" class="peek" (click)="togglePassword()">
+            {{ showPassword() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="form-error">
+            @if (form.controls.password.hasError('required')) { Password is required. }
+            @else { Password must be at least 6 characters. }
+          </span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner" style="width:18px;height:18px;border-width:2px"></span>
+          Logging in…
+        } @else {
+          Log in
+        }
+      </button>
+    </form>
+
+    <p class="auth-alt muted">
+      Don't have an account?
+      <a routerLink="/register">Create one</a>
+    </p>
+  </div>
+</div>

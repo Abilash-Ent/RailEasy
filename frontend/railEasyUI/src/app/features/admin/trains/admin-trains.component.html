@@ -1,0 +1,103 @@
+<div class="page">
+  <div class="container">
+    <div class="toolbar page-head">
+      <div>
+        <h1 class="mb-0">Trains</h1>
+        <p class="muted mb-0">Manage the train fleet.</p>
+      </div>
+      <div class="row">
+        <span class="badge count-pill">{{ trains().length }} trains</span>
+        <button class="btn btn-primary" (click)="openCreate()">+ Add train</button>
+      </div>
+    </div>
+
+    <div class="card">
+      @if (loading()) {
+        <div class="loading-wrap"><div class="spinner spinner-lg"></div></div>
+      } @else if (trains().length > 0) {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Seats / class</th>
+                <th style="text-align:right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (t of trains(); track t.id) {
+                <tr>
+                  <td><span class="code">{{ t.trainNumber }}</span></td>
+                  <td><strong>{{ t.trainName }}</strong></td>
+                  <td>{{ t.totalSeatsPerClass }}</td>
+                  <td>
+                    <div class="actions">
+                      <button class="btn btn-ghost btn-sm" (click)="openEdit(t)">Edit</button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="remove(t)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="icon">🚆</div>
+          <h3>No trains yet</h3>
+          <p>Add your first train to get started.</p>
+          <button class="btn btn-primary" (click)="openCreate()">+ Add train</button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (modalOpen()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ modalTitle() }}</h3>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="modal-body stack">
+          <div class="field">
+            <label class="label" for="trainNumber">Train number</label>
+            <input id="trainNumber" class="input" placeholder="12963"
+                   formControlName="trainNumber"
+                   [class.invalid]="form.controls.trainNumber.touched && form.controls.trainNumber.invalid" />
+            @if (form.controls.trainNumber.touched && form.controls.trainNumber.invalid) {
+              <span class="form-error">Train number is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label class="label" for="trainName">Train name</label>
+            <input id="trainName" class="input" placeholder="Mewar Express"
+                   formControlName="trainName"
+                   [class.invalid]="form.controls.trainName.touched && form.controls.trainName.invalid" />
+            @if (form.controls.trainName.touched && form.controls.trainName.invalid) {
+              <span class="form-error">Train name is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label class="label" for="seats">Seats per class</label>
+            <input id="seats" type="number" min="1" class="input"
+                   formControlName="totalSeatsPerClass"
+                   [class.invalid]="form.controls.totalSeatsPerClass.touched && form.controls.totalSeatsPerClass.invalid" />
+            @if (form.controls.totalSeatsPerClass.touched && form.controls.totalSeatsPerClass.invalid) {
+              <span class="form-error">Enter a valid seat count.</span>
+            }
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) { Saving… } @else { Save }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

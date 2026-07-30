@@ -1,0 +1,184 @@
+<div class="page">
+  <div class="container">
+    <div class="toolbar page-head">
+      <div>
+        <h1 class="mb-0">Schedules</h1>
+        <p class="muted mb-0">Manage train schedules and fares.</p>
+      </div>
+      <div class="row">
+        <span class="badge count-pill">{{ schedules().length }} schedules</span>
+        <button class="btn btn-primary" (click)="openCreate()">+ Add schedule</button>
+      </div>
+    </div>
+
+    <div class="card">
+      @if (loading()) {
+        <div class="loading-wrap"><div class="spinner spinner-lg"></div></div>
+      } @else if (schedules().length > 0) {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Train</th>
+                <th>Route</th>
+                <th>Date</th>
+                <th>Timing</th>
+                <th>Fares (SL / 3A / 2A)</th>
+                <th style="text-align:right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of schedules(); track s.id) {
+                <tr>
+                  <td><strong>{{ s.trainName || trainLabel(s.trainId) }}</strong></td>
+                  <td>{{ s.fromStation }} → {{ s.toStation }}</td>
+                  <td>{{ s.journeyDate | date: 'MMM d, y' }}</td>
+                  <td class="muted">{{ s.departureTime }} – {{ s.arrivalTime }}</td>
+                  <td>₹{{ s.fareSleeper }} / ₹{{ s.fareAc3 }} / ₹{{ s.fareAc2 }}</td>
+                  <td>
+                    <div class="actions">
+                      <button class="btn btn-ghost btn-sm" (click)="openEdit(s)">Edit</button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="remove(s)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="icon">🗓️</div>
+          <h3>No schedules yet</h3>
+          <p>Create a schedule to make trains bookable.</p>
+          <button class="btn btn-primary" (click)="openCreate()">+ Add schedule</button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (modalOpen()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ modalTitle() }}</h3>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="modal-body stack">
+          <div class="field">
+            <label class="label" for="trainId">Train</label>
+            <select id="trainId" class="select" formControlName="trainId"
+                    [class.invalid]="form.controls.trainId.touched && form.controls.trainId.invalid">
+              <option [ngValue]="null" disabled>Select a train</option>
+              @for (t of trains(); track t.id) {
+                <option [ngValue]="t.id">{{ t.trainName }} (#{{ t.trainNumber }})</option>
+              }
+            </select>
+            @if (form.controls.trainId.touched && form.controls.trainId.invalid) {
+              <span class="form-error">
+                {{ form.controls.trainId.errors?.['server'] || 'Please select a train.' }}
+              </span>
+            }
+          </div>
+
+          <div class="grid grid-2">
+            <div class="field">
+              <label class="label" for="fromStation">From</label>
+              <input id="fromStation" class="input" placeholder="Chennai" formControlName="fromStation"
+                     [class.invalid]="form.controls.fromStation.touched && form.controls.fromStation.invalid" />
+              @if (form.controls.fromStation.touched && form.controls.fromStation.invalid) {
+                <span class="form-error">
+                  {{ form.controls.fromStation.errors?.['server'] || 'Origin station is required.' }}
+                </span>
+              }
+            </div>
+            <div class="field">
+              <label class="label" for="toStation">To</label>
+              <input id="toStation" class="input" placeholder="Mumbai" formControlName="toStation"
+                     [class.invalid]="form.controls.toStation.touched && form.controls.toStation.invalid" />
+              @if (form.controls.toStation.touched && form.controls.toStation.invalid) {
+                <span class="form-error">
+                  {{ form.controls.toStation.errors?.['server'] || 'Destination station is required.' }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="grid grid-3">
+            <div class="field">
+              <label class="label" for="journeyDate">Journey date</label>
+              <input id="journeyDate" type="date" class="input" [min]="today" formControlName="journeyDate"
+                     [class.invalid]="form.controls.journeyDate.touched && form.controls.journeyDate.invalid" />
+              @if (form.controls.journeyDate.touched && form.controls.journeyDate.invalid) {
+                <span class="form-error">
+                  {{ form.controls.journeyDate.errors?.['server'] || 'Journey date is required.' }}
+                </span>
+              }
+            </div>
+            <div class="field">
+              <label class="label" for="departureTime">Departure</label>
+              <input id="departureTime" type="time" class="input" formControlName="departureTime"
+                     [class.invalid]="form.controls.departureTime.touched && form.controls.departureTime.invalid" />
+              @if (form.controls.departureTime.touched && form.controls.departureTime.invalid) {
+                <span class="form-error">
+                  {{ form.controls.departureTime.errors?.['server'] || 'Required.' }}
+                </span>
+              }
+            </div>
+            <div class="field">
+              <label class="label" for="arrivalTime">Arrival</label>
+              <input id="arrivalTime" type="time" class="input" formControlName="arrivalTime"
+                     [class.invalid]="form.controls.arrivalTime.touched && form.controls.arrivalTime.invalid" />
+              @if (form.controls.arrivalTime.touched && form.controls.arrivalTime.invalid) {
+                <span class="form-error">
+                  {{ form.controls.arrivalTime.errors?.['server'] || 'Required.' }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="grid grid-3">
+            <div class="field">
+              <label class="label" for="fareSleeper">Sleeper ₹</label>
+              <input id="fareSleeper" type="number" min="0" class="input" formControlName="fareSleeper"
+                     [class.invalid]="form.controls.fareSleeper.touched && form.controls.fareSleeper.invalid" />
+              @if (form.controls.fareSleeper.touched && form.controls.fareSleeper.invalid) {
+                <span class="form-error">
+                  {{ form.controls.fareSleeper.errors?.['server'] || 'Enter a valid fare.' }}
+                </span>
+              }
+            </div>
+            <div class="field">
+              <label class="label" for="fareAc3">AC 3 ₹</label>
+              <input id="fareAc3" type="number" min="0" class="input" formControlName="fareAc3"
+                     [class.invalid]="form.controls.fareAc3.touched && form.controls.fareAc3.invalid" />
+              @if (form.controls.fareAc3.touched && form.controls.fareAc3.invalid) {
+                <span class="form-error">
+                  {{ form.controls.fareAc3.errors?.['server'] || 'Enter a valid fare.' }}
+                </span>
+              }
+            </div>
+            <div class="field">
+              <label class="label" for="fareAc2">AC 2 ₹</label>
+              <input id="fareAc2" type="number" min="0" class="input" formControlName="fareAc2"
+                     [class.invalid]="form.controls.fareAc2.touched && form.controls.fareAc2.invalid" />
+              @if (form.controls.fareAc2.touched && form.controls.fareAc2.invalid) {
+                <span class="form-error">
+                  {{ form.controls.fareAc2.errors?.['server'] || 'Enter a valid fare.' }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) { Saving… } @else { Save }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,236 @@
+.hero {
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-500) 55%, var(--accent-600));
+  color: #fff;
+  padding: 54px 0 90px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px 240px at 85% 10%, rgba(255, 255, 255, 0.18), transparent);
+  pointer-events: none;
+}
+
+.hero-copy {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 34px;
+}
+.hero-copy .badge {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  margin-bottom: 16px;
+}
+.hero-title {
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.hero-sub {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+
+.search-card {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: var(--shadow-lg);
+}
+.search-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 1fr auto;
+  gap: 14px;
+  align-items: end;
+}
+.swap-btn {
+  height: 44px;
+  width: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--ink-200);
+  background: var(--surface);
+  color: var(--brand-600);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.swap-btn:hover {
+  background: var(--brand-50);
+  transform: rotate(180deg);
+}
+.search-submit {
+  height: 44px;
+  white-space: nowrap;
+}
+
+@media (max-width: 820px) {
+  .search-grid {
+    grid-template-columns: 1fr;
+  }
+  .swap-btn {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+  .swap-btn:hover {
+    transform: rotate(270deg);
+  }
+}
+
+.results-section {
+  margin-top: -46px;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 40px;
+}
+
+.results-head {
+  margin: 8px 4px 16px;
+}
+
+/* Feature intro cards */
+.features {
+  margin-top: 24px;
+}
+.feature {
+  text-align: center;
+}
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+.feature h3 {
+  font-size: 1.1rem;
+}
+.feature p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+/* Train result card */
+.train-card {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 0;
+  overflow: hidden;
+}
+.train-main {
+  padding: 20px 22px;
+}
+.train-id {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.train-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.train-no {
+  font-size: 0.8rem;
+  color: var(--ink-500);
+  background: var(--ink-100);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.route {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+.stop {
+  display: flex;
+  flex-direction: column;
+}
+.stop.align-right {
+  text-align: right;
+}
+.time {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+.station {
+  font-size: 0.88rem;
+  color: var(--ink-500);
+}
+.route-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.route-line .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand-500);
+  flex-shrink: 0;
+}
+.route-line .line {
+  flex: 1;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink-300),
+    var(--ink-300) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+}
+.train-emoji {
+  font-size: 1rem;
+}
+.journey-date {
+  margin-top: 14px;
+  font-size: 0.86rem;
+}
+
+.train-fares {
+  background: var(--brand-50);
+  border-left: 1px solid var(--ink-200);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+.fare-chips {
+  display: flex;
+  gap: 8px;
+}
+.fare-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-sm);
+  padding: 8px 6px;
+}
+.fare-chip small {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink-500);
+}
+.fare-chip strong {
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .train-card {
+    grid-template-columns: 1fr;
+  }
+  .train-fares {
+    border-left: none;
+    border-top: 1px solid var(--ink-200);
+  }
+}

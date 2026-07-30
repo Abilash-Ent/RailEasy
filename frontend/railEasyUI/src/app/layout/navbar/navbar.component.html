@@ -1,0 +1,51 @@
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" routerLink="/" (click)="closeMenu()">
+      <span class="brand-mark">🚆</span>
+      <span class="brand-name">Rail<span class="brand-accent">Easy</span></span>
+    </a>
+
+    <button class="hamburger" type="button" (click)="toggleMenu()" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="links" [class.open]="menuOpen()">
+      <a routerLink="/search" routerLinkActive="active" (click)="closeMenu()">
+        Search Trains
+      </a>
+
+      @if (auth.isLoggedIn()) {
+        <a routerLink="/bookings" routerLinkActive="active" (click)="closeMenu()">
+          My Bookings
+        </a>
+      }
+
+      @if (auth.isAdmin()) {
+        <a routerLink="/admin/trains" routerLinkActive="active" (click)="closeMenu()">
+          Trains
+        </a>
+        <a routerLink="/admin/schedules" routerLinkActive="active" (click)="closeMenu()">
+          Schedules
+        </a>
+      }
+
+      <div class="nav-cta">
+        @if (auth.isLoggedIn()) {
+          <span class="user-chip">
+            <span class="avatar">{{ (auth.currentUser()?.email || '?')[0] | uppercase }}</span>
+            <span class="user-meta">
+              <span class="user-name">{{ auth.currentUser()?.fullName || auth.currentUser()?.email }}</span>
+              @if (auth.isAdmin()) {
+                <span class="badge badge-info">Admin</span>
+              }
+            </span>
+          </span>
+          <button class="btn btn-ghost btn-sm" (click)="logout()">Logout</button>
+        } @else {
+          <a class="btn btn-ghost btn-sm" routerLink="/login" (click)="closeMenu()">Login</a>
+          <a class="btn btn-primary btn-sm" routerLink="/register" (click)="closeMenu()">Sign up</a>
+        }
+      </div>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,98 @@
+<div class="page">
+  <div class="container">
+    <div class="spread page-head">
+      <div>
+        <h1 class="mb-0">My Bookings</h1>
+        <p class="muted mb-0">View and manage your train tickets.</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" (click)="load()" [disabled]="loading()">
+        ↻ Refresh
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-wrap"><div class="spinner spinner-lg"></div></div>
+    } @else if (hasBookings()) {
+      <div class="tickets">
+        @for (b of bookings(); track b.id) {
+          <article class="card ticket" [class.cancelled]="isCancelled(b)">
+            <div class="ticket-stub">
+              <span class="stub-label">PNR</span>
+              <span class="stub-id">#{{ b.id }}</span>
+              <div class="stub-class badge badge-info">{{ label(b.travelClass) }}</div>
+            </div>
+
+            <div class="ticket-body">
+              <div class="spread">
+                <h3 class="mb-0">
+                  {{ b.trainName || 'Train' }}
+                  @if (b.trainNumber) { <span class="muted">#{{ b.trainNumber }}</span> }
+                </h3>
+                @if (isCancelled(b)) {
+                  <span class="badge badge-danger">Cancelled</span>
+                } @else {
+                  <span class="badge badge-success">Confirmed</span>
+                }
+              </div>
+
+              <div class="ticket-route">
+                <span>{{ b.fromStation || '—' }}</span>
+                <span class="arrow">→</span>
+                <span>{{ b.toStation || '—' }}</span>
+              </div>
+
+              <div class="ticket-meta">
+                @if (b.journeyDate) {
+                  <span>📅 {{ b.journeyDate | date: 'EEE, MMM d, y' }}</span>
+                }
+                @if (b.departureTime) {
+                  <span>🕐 {{ b.departureTime }}</span>
+                }
+                <span>💺 {{ b.seatNumbers.join(', ') }}</span>
+              </div>
+
+              <div class="spread ticket-foot">
+                <strong class="fare">₹{{ b.totalFare }}</strong>
+                <div class="ticket-actions">
+                  @if (!isCancelled(b)) {
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      (click)="downloadTicket(b)"
+                      [disabled]="downloadingId() === b.id"
+                    >
+                      @if (downloadingId() === b.id) {
+                        <span class="spinner" style="width:14px;height:14px;border-width:2px"></span>
+                        Preparing…
+                      } @else {
+                        ⬇ Download ticket
+                      }
+                    </button>
+                    <button
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="cancel(b)"
+                      [disabled]="cancellingId() === b.id"
+                    >
+                      @if (cancellingId() === b.id) {
+                        <span class="spinner" style="width:14px;height:14px;border-width:2px"></span>
+                        Cancelling…
+                      } @else {
+                        Cancel booking
+                      }
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="card empty-state">
+        <div class="icon">🎫</div>
+        <h3>No bookings yet</h3>
+        <p>Search for a train and book your first ticket.</p>
+        <a class="btn btn-primary" routerLink="/search">Search trains</a>
+      </div>
+    }
+  </div>
+</div>

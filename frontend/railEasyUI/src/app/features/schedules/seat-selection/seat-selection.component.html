@@ -1,0 +1,129 @@
+<div class="page">
+  <div class="container">
+    <button class="btn btn-ghost btn-sm back-btn" (click)="goBack()">← Back to search</button>
+
+    @if (loadingSchedule()) {
+      <div class="loading-wrap"><div class="spinner spinner-lg"></div></div>
+    } @else {
+      @if (schedule(); as s) {
+      <div class="booking-layout">
+        <!-- Left: seat map -->
+        <div class="card card-pad seat-panel">
+          <div class="spread trip-head">
+            <div>
+              <h2 class="mb-0">{{ s.trainName || 'Train' }}
+                @if (s.trainNumber) { <span class="train-no">#{{ s.trainNumber }}</span> }
+              </h2>
+              <p class="muted mb-0">
+                {{ s.fromStation }} → {{ s.toStation }} ·
+                {{ s.journeyDate | date: 'EEE, MMM d' }} ·
+                {{ s.departureTime }}–{{ s.arrivalTime }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Class selector -->
+          <div class="class-tabs">
+            @for (c of classes; track c.value) {
+              <button
+                class="class-tab"
+                [class.active]="travelClass() === c.value"
+                (click)="selectClass(c.value)"
+              >
+                {{ c.label }}
+              </button>
+            }
+          </div>
+
+          <!-- Legend -->
+          <div class="legend">
+            <span class="legend-item"><span class="seat-demo available"></span> Available</span>
+            <span class="legend-item"><span class="seat-demo selected"></span> Selected</span>
+            <span class="legend-item"><span class="seat-demo booked"></span> Booked</span>
+          </div>
+
+          <!-- Seat grid -->
+          <div class="coach">
+            <div class="coach-front">Front of coach 🚆</div>
+            @if (loadingSeats()) {
+              <div class="loading-wrap"><div class="spinner"></div></div>
+            } @else {
+              <div class="seat-grid">
+                @for (r of rows; track r) {
+                  <div class="seat-row">
+                    <span class="row-no">{{ r }}</span>
+                    @for (c of cols; track c) {
+                      <button
+                        class="seat"
+                        [class.booked]="isBooked(r + c)"
+                        [class.selected]="isSelected(r + c)"
+                        [disabled]="isBooked(r + c)"
+                        (click)="toggleSeat(r + c)"
+                        [title]="r + c"
+                      >
+                        {{ c }}
+                      </button>
+                      @if (c === 'D') { <span class="aisle"></span> }
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right: summary -->
+        <aside class="card card-pad summary-panel">
+          <h3>Booking summary</h3>
+
+          <div class="summary-row">
+            <span class="muted">Class</span>
+            <span class="badge badge-info">{{ label(travelClass()) }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="muted">Fare / seat</span>
+            <strong>₹{{ farePerSeat() }}</strong>
+          </div>
+
+          <div class="summary-seats">
+            <span class="muted">Selected seats ({{ selectedSeats().length }}/{{ maxSeats }})</span>
+            @if (selectedSeats().length > 0) {
+              <div class="chips">
+                @for (seat of selectedSeats(); track seat) {
+                  <span class="seat-chip" (click)="toggleSeat(seat)">
+                    {{ seat }} ✕
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="muted hint">Tap seats on the map to select.</p>
+            }
+          </div>
+
+          <hr class="divider" />
+
+          <div class="summary-total">
+            <span>Total</span>
+            <strong>₹{{ totalFare() }}</strong>
+          </div>
+
+          <button
+            class="btn btn-primary btn-block btn-lg"
+            [disabled]="selectedSeats().length === 0 || booking()"
+            (click)="confirm()"
+          >
+            @if (booking()) {
+              <span class="spinner" style="width:18px;height:18px;border-width:2px"></span>
+              Booking…
+            } @else {
+              Confirm booking
+            }
+          </button>
+          <p class="fine-print muted">You can book between 1 and {{ maxSeats }} seats per booking.</p>
+        </aside>
+      </div>
+      }
+    }
+  </div>
+</div>
