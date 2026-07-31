@@ -6,6 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "build:prod": "ng build --configuration production",
+    "start:prod": "serve -s dist/rail-easy-ui/browser",
     "test": "ng test"
   },
   "private": true,
