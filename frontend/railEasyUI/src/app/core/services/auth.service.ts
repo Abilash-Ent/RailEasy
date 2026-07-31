@@ -22,6 +22,12 @@ export class AuthService {
     localStorage.getItem(TOKEN_KEY)
   );
 
+  constructor() {
+      console.log('Production:', environment.production);
+      console.log('API Base URL:', environment.apiBaseUrl);
+      console.log('Auth Base URL:', this.baseUrl);
+   }
+
   readonly currentUser = computed<CurrentUser | null>(() =>
     this.decodeUser(this._token())
   );
