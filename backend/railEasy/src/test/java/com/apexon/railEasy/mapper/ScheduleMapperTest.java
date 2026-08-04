@@ -102,4 +102,3 @@ class ScheduleMapperTest {
         assertThat(response.getAvailableSeats()).isEmpty();
     }
 }
-

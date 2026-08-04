@@ -82,4 +82,3 @@ public class BookingController {
                         .body(pdf));
     }
 }
-

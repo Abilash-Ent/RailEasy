@@ -54,4 +54,3 @@ class TrainMapperTest {
         assertThat(response.getActive()).isTrue();
     }
 }
-

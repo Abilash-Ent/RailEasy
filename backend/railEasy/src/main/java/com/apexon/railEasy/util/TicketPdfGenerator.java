@@ -185,10 +185,3 @@ public class TicketPdfGenerator {
         return value != null && !value.isBlank() ? value : "-";
     }
 }
-
-
-
-
-
-
-

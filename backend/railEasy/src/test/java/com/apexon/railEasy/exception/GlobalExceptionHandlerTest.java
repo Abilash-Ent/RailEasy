@@ -107,4 +107,3 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody().getMessage()).isEqualTo("An unexpected error occurred");
     }
 }
-

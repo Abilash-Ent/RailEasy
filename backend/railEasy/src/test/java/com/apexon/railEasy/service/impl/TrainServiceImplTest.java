@@ -1,5 +1,6 @@
 package com.apexon.railEasy.service.impl;
 
+import com.apexon.railEasy.cache.TrainCache;
 import com.apexon.railEasy.dto.request.TrainRequest;
 import com.apexon.railEasy.dto.response.TrainResponse;
 import com.apexon.railEasy.entity.Train;
@@ -25,6 +26,8 @@ class TrainServiceImplTest {
     private TrainRepository trainRepository;
     @Mock
     private ScheduleRepository scheduleRepository;
+    @Mock
+    private TrainCache trainCache;
     @Mock
     private TrainMapper trainMapper;
 
@@ -83,5 +86,3 @@ class TrainServiceImplTest {
                 .verify();
     }
 }
-
-

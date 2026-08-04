@@ -8,7 +8,9 @@ import com.apexon.railEasy.entity.Train;
 import com.apexon.railEasy.exception.BusinessValidationException;
 import com.apexon.railEasy.exception.ResourceNotFoundException;
 import com.apexon.railEasy.mapper.ScheduleMapper;
+import com.apexon.railEasy.cache.TrainCache;
 import com.apexon.railEasy.repository.BookingRepository;
+import com.apexon.railEasy.repository.BookingSeatRepository;
 import com.apexon.railEasy.repository.ScheduleRepository;
 import com.apexon.railEasy.repository.TrainRepository;
 import com.apexon.railEasy.service.SeatAvailabilityHelper;
@@ -27,7 +29,7 @@ import java.time.LocalTime;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +37,9 @@ class ScheduleServiceImplTest {
 
     @Mock private ScheduleRepository scheduleRepository;
     @Mock private TrainRepository trainRepository;
+    @Mock private TrainCache trainCache;
     @Mock private BookingRepository bookingRepository;
+    @Mock private BookingSeatRepository bookingSeatRepository;
     @Mock private ScheduleMapper scheduleMapper;
     @Mock private SeatAvailabilityHelper seatAvailabilityHelper;
 
@@ -109,9 +113,9 @@ class ScheduleServiceImplTest {
         ScheduleResponse response = ScheduleResponse.builder().id(1L).trainNumber("12621").build();
         when(scheduleRepository.search("Chennai", "Mumbai", LocalDate.of(2026, 8, 15)))
                 .thenReturn(Flux.just(schedule()));
-        when(trainRepository.findById(2L)).thenReturn(Mono.just(
+        when(trainCache.findAllById(anyCollection())).thenReturn(Flux.just(
                 Train.builder().id(2L).trainNumber("12621").totalSeatsPerClass(64).build()));
-        when(seatAvailabilityHelper.bookedSeats(anyLong(), any(TravelClass.class))).thenReturn(Mono.just(Set.of()));
+        when(bookingSeatRepository.findByScheduleIdIn(anyCollection())).thenReturn(Flux.empty());
         when(scheduleMapper.toResponse(any(Schedule.class), any(Train.class), any())).thenReturn(response);
 
         StepVerifier.create(scheduleService.search("Chennai", "Mumbai", LocalDate.of(2026, 8, 15)))
@@ -119,4 +123,3 @@ class ScheduleServiceImplTest {
                 .verifyComplete();
     }
 }
-

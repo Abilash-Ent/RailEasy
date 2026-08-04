@@ -40,4 +40,3 @@ public interface ScheduleRepository extends ReactiveCrudRepository<Schedule, Lon
             "ORDER BY departure_time")
     Flux<Schedule> search(String from, String to, LocalDate date);
 }
-

@@ -144,6 +144,3 @@ A ready-to-use collection lives at `docs/RailEasy.postman_collection.json`.
 
 Folders: **Auth**, **Schedules (search & seats – public)**, **Schedules (admin)**,
 **Trains**, **Bookings**.
-
-
-

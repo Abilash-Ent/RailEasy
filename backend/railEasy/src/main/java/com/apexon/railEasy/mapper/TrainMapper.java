@@ -23,6 +23,3 @@ public interface TrainMapper {
 
     TrainResponse toResponse(Train train);
 }
-
-
-

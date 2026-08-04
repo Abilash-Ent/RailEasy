@@ -1,5 +1,6 @@
 package com.apexon.railEasy.service.impl;
 
+import com.apexon.railEasy.cache.TrainCache;
 import com.apexon.railEasy.dto.request.TrainRequest;
 import com.apexon.railEasy.dto.response.TrainResponse;
 import com.apexon.railEasy.exception.BusinessValidationException;
@@ -26,13 +27,16 @@ public class TrainServiceImpl implements TrainService {
 
     private final TrainRepository trainRepository;
     private final ScheduleRepository scheduleRepository;
+    private final TrainCache trainCache;
     private final TrainMapper trainMapper;
 
     public TrainServiceImpl(TrainRepository trainRepository,
                             ScheduleRepository scheduleRepository,
+                            TrainCache trainCache,
                             TrainMapper trainMapper) {
         this.trainRepository = trainRepository;
         this.scheduleRepository = scheduleRepository;
+        this.trainCache = trainCache;
         this.trainMapper = trainMapper;
     }
 
@@ -60,7 +64,10 @@ public class TrainServiceImpl implements TrainService {
                     return trainRepository.save(train);
                 })
                 .map(trainMapper::toResponse)
-                .doOnSuccess(t -> log.info("Updated train id: {}", id));
+                .doOnSuccess(t -> {
+                    trainCache.evict(id);
+                    log.info("Updated train id: {}", id);
+                });
     }
 
     @Override
@@ -73,7 +80,10 @@ public class TrainServiceImpl implements TrainService {
                                         "This train has active schedules and cannot be deleted. "
                                                 + "Please remove its schedules first."))
                                 : trainRepository.delete(train)))
-                .doOnSuccess(v -> log.info("Deleted train id: {}", id));
+                .doOnSuccess(v -> {
+                    trainCache.evict(id);
+                    log.info("Deleted train id: {}", id);
+                });
     }
 
     @Override
@@ -88,4 +98,3 @@ public class TrainServiceImpl implements TrainService {
         return trainRepository.findAll().map(trainMapper::toResponse);
     }
 }
-

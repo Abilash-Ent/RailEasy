@@ -8,6 +8,15 @@ spring:
     url: r2dbc:h2:mem:///raileasy?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     username: sa
     password:
+    # Connection pool sizing (externalized so throughput isn't capped by defaults
+    # once running against a real, non in-memory database).
+    pool:
+      enabled: true
+      initial-size: ${R2DBC_POOL_INITIAL_SIZE:5}
+      max-size: ${R2DBC_POOL_MAX_SIZE:20}
+      max-idle-time: ${R2DBC_POOL_MAX_IDLE_TIME:30m}
+      max-acquire-time: ${R2DBC_POOL_MAX_ACQUIRE_TIME:5s}
+      validation-query: SELECT 1
 #jdbc:h2:tcp://localhost:9092/mem:raileasy
   # SQL scripts are executed by R2dbcInitializerConfig against the R2DBC
   # ConnectionFactory, so Boot's own (JDBC-capable) SQL init is disabled here.
@@ -27,13 +36,17 @@ raileasy:
     issuer: railEasy
   # NOTE: the default admin account is seeded via src/main/resources/data.sql.
   cors:
-    # Front-end origins allowed to call the API (supports wildcard patterns).
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,http://localhost:4200,http://localhost:5173}
     allowed-methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
     allowed-headers: ["*"]
     exposed-headers: [Authorization]
     allow-credentials: false
     max-age-seconds: 3600
+  # In-memory cache for near-static train reference data.
+  cache:
+    train:
+      maximum-size: ${TRAIN_CACHE_MAX_SIZE:500}
+      expire-after-write: ${TRAIN_CACHE_TTL:10m}
 
 # OpenAPI / Swagger UI
 springdoc:
@@ -47,4 +60,3 @@ logging:
   level:
     com.apexon.railEasy: INFO
     org.springframework.r2dbc: INFO
-

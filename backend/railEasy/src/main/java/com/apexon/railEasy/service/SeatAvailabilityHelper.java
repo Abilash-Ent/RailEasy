@@ -1,9 +1,8 @@
 package com.apexon.railEasy.service;
 
-import com.apexon.railEasy.constants.BookingStatus;
 import com.apexon.railEasy.constants.TravelClass;
-import com.apexon.railEasy.mapper.BookingMapper;
-import com.apexon.railEasy.repository.BookingRepository;
+import com.apexon.railEasy.entity.BookingSeat;
+import com.apexon.railEasy.repository.BookingSeatRepository;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -12,22 +11,21 @@ import java.util.stream.Collectors;
 
 /**
  * Computes which seats are currently occupied for a schedule + travel class,
- * derived from CONFIRMED bookings (cancelled bookings free their seats).
+ * derived from normalized {@link BookingSeat} rows (which exist only for active
+ * bookings; cancelling a booking releases its seats).
  */
 @Component
 public class SeatAvailabilityHelper {
 
-    private final BookingRepository bookingRepository;
+    private final BookingSeatRepository bookingSeatRepository;
 
-    public SeatAvailabilityHelper(BookingRepository bookingRepository) {
-        this.bookingRepository = bookingRepository;
+    public SeatAvailabilityHelper(BookingSeatRepository bookingSeatRepository) {
+        this.bookingSeatRepository = bookingSeatRepository;
     }
 
     public Mono<Set<String>> bookedSeats(Long scheduleId, TravelClass travelClass) {
-        return bookingRepository
-                .findByScheduleIdAndTravelClassAndStatus(scheduleId, travelClass, BookingStatus.CONFIRMED)
-                .flatMapIterable(b -> BookingMapper.parseSeats(b.getSeatNumbers()))
+        return bookingSeatRepository.findByScheduleIdAndTravelClass(scheduleId, travelClass)
+                .map(BookingSeat::getSeatNo)
                 .collect(Collectors.toSet());
     }
 }
-

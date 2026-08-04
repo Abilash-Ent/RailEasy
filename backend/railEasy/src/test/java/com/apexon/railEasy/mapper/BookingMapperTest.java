@@ -12,16 +12,19 @@ import org.mapstruct.factory.Mappers;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BookingMapperTest {
 
+    private static final List<String> SEATS = List.of("1A", "1B", "1C");
+
     private final BookingMapper mapper = Mappers.getMapper(BookingMapper.class);
 
     private Booking booking() {
         return Booking.builder().id(10L).pnr("ABC12345").userId(5L).scheduleId(1L)
-                .travelClass(TravelClass.AC_3).seatNumbers("1A, 1B ,1C")
+                .travelClass(TravelClass.AC_3)
                 .totalFare(BigDecimal.valueOf(4200)).status(BookingStatus.CONFIRMED)
                 .bookedAt(LocalDateTime.of(2026, 7, 28, 10, 30)).build();
     }
@@ -32,7 +35,7 @@ class BookingMapperTest {
                 .journeyDate(LocalDate.of(2026, 8, 15)).build();
         Train train = Train.builder().id(2L).trainNumber("12621").trainName("Tamil Nadu Express").build();
 
-        BookingResponse response = mapper.toResponse(booking(), schedule, train);
+        BookingResponse response = mapper.toResponse(booking(), schedule, train, SEATS);
 
         assertThat(response.getPnr()).isEqualTo("ABC12345");
         assertThat(response.getTrainNumber()).isEqualTo("12621");
@@ -46,7 +49,7 @@ class BookingMapperTest {
 
     @Test
     void toResponse_withNullScheduleAndTrain_leavesEnrichedFieldsNull() {
-        BookingResponse response = mapper.toResponse(booking(), null, null);
+        BookingResponse response = mapper.toResponse(booking(), null, null, SEATS);
 
         assertThat(response.getTrainNumber()).isNull();
         assertThat(response.getTrainName()).isNull();
@@ -57,14 +60,9 @@ class BookingMapperTest {
     }
 
     @Test
-    void parseSeats_returnsTrimmedNonEmptyTokens() {
-        assertThat(BookingMapper.parseSeats("1A, 1B ,1C")).containsExactly("1A", "1B", "1C");
-    }
+    void toResponse_withEmptySeats_mapsEmptyList() {
+        BookingResponse response = mapper.toResponse(booking(), null, null, List.of());
 
-    @Test
-    void parseSeats_returnsEmptyListForNullOrBlank() {
-        assertThat(BookingMapper.parseSeats(null)).isEmpty();
-        assertThat(BookingMapper.parseSeats("   ")).isEmpty();
+        assertThat(response.getSeatNumbers()).isEmpty();
     }
 }
-

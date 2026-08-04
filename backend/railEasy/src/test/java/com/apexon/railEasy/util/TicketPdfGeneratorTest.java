@@ -77,4 +77,3 @@ class TicketPdfGeneratorTest {
         assertThatNullPointerException().isThrownBy(() -> generator.generate(null));
     }
 }
-

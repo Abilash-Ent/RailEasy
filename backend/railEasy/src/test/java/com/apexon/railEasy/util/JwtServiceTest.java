@@ -69,4 +69,3 @@ class JwtServiceTest {
         assertThat(jwtService.getExpirationSeconds()).isEqualTo(3_600L);
     }
 }
-

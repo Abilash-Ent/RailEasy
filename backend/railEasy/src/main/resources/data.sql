@@ -45,4 +45,3 @@ MERGE INTO users (full_name, email, password, role, created_at)
     VALUES ('Rail Admin', 'admin@raileasy.com',
             '$2a$12$OoGOTkbopIhS0H5UstN2G.4vy42md8JsdNz6TJVXEMVXBWcPhR2bW',
             'ADMIN', CURRENT_TIMESTAMP);
-

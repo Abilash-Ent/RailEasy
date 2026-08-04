@@ -1,6 +1,5 @@
 package com.apexon.railEasy.entity;
 
-import com.apexon.railEasy.constants.BookingStatus;
 import com.apexon.railEasy.constants.TravelClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,28 +9,23 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 /**
- * A ticket booking for specific seats on a schedule/travel class.
- * The individual seats are stored as normalized {@link BookingSeat} rows.
+ * A single booked seat. Normalized out of {@link Booking} so the database can
+ * enforce no-double-booking (unique per schedule + class + seat) and compute
+ * availability with COUNT/GROUP BY. Rows exist only for active bookings.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("bookings")
-public class Booking {
+@Table("booking_seats")
+public class BookingSeat {
 
     @Id
     private Long id;
 
-    @Column("pnr")
-    private String pnr;
-
-    @Column("user_id")
-    private Long userId;
+    @Column("booking_id")
+    private Long bookingId;
 
     @Column("schedule_id")
     private Long scheduleId;
@@ -39,13 +33,7 @@ public class Booking {
     @Column("travel_class")
     private TravelClass travelClass;
 
-
-    @Column("total_fare")
-    private BigDecimal totalFare;
-
-    @Column("status")
-    private BookingStatus status;
-
-    @Column("booked_at")
-    private LocalDateTime bookedAt;
+    @Column("seat_no")
+    private String seatNo;
 }
+

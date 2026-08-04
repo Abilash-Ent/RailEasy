@@ -27,4 +27,3 @@ public interface BookingService {
 
     Mono<BookingResponse> cancel(Long id, String username);
 }
-
