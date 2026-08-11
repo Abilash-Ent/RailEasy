@@ -109,5 +109,49 @@ class TrainCacheTest {
         trainCache.evict(null);
         verifyNoInteractions(trainRepository);
     }
-}
 
+    @Test
+    void findAll_loadsOnceThenServesFromSnapshotAndWarmsByIdCache() {
+        when(trainRepository.findAll()).thenReturn(Flux.just(train(2L, "12621"), train(3L, "12622")));
+
+        // First call loads via the supplier.
+        StepVerifier.create(trainCache.findAll(trainRepository::findAll))
+                .expectNextCount(2)
+                .verifyComplete();
+
+        // Second call is served from the cached snapshot (loader not invoked again).
+        StepVerifier.create(trainCache.findAll(trainRepository::findAll))
+                .expectNextCount(2)
+                .verifyComplete();
+
+        verify(trainRepository, times(1)).findAll();
+
+        // The by-id cache was warmed, so findById(2) needs no repository call.
+        StepVerifier.create(trainCache.findById(2L)).expectNextCount(1).verifyComplete();
+        verify(trainRepository, never()).findById(2L);
+    }
+
+    @Test
+    void evictList_forcesSnapshotReload() {
+        when(trainRepository.findAll()).thenReturn(Flux.just(train(2L, "12621")));
+        StepVerifier.create(trainCache.findAll(trainRepository::findAll)).expectNextCount(1).verifyComplete();
+
+        trainCache.evictList();
+
+        StepVerifier.create(trainCache.findAll(trainRepository::findAll)).expectNextCount(1).verifyComplete();
+
+        verify(trainRepository, times(2)).findAll();
+    }
+
+    @Test
+    void evict_alsoClearsListSnapshot() {
+        when(trainRepository.findAll()).thenReturn(Flux.just(train(2L, "12621")));
+        StepVerifier.create(trainCache.findAll(trainRepository::findAll)).expectNextCount(1).verifyComplete();
+
+        trainCache.evict(2L);
+
+        StepVerifier.create(trainCache.findAll(trainRepository::findAll)).expectNextCount(1).verifyComplete();
+
+        verify(trainRepository, times(2)).findAll();
+    }
+}

@@ -52,7 +52,10 @@ public class TrainServiceImpl implements TrainService {
                     return trainRepository.save(trainMapper.toEntity(request));
                 })
                 .map(trainMapper::toResponse)
-                .doOnSuccess(t -> log.info("Created train: {}", request.getTrainNumber()));
+                .doOnSuccess(t -> {
+                    trainCache.evictList();
+                    log.info("Created train: {}", request.getTrainNumber());
+                });
     }
 
     @Override
@@ -88,13 +91,13 @@ public class TrainServiceImpl implements TrainService {
 
     @Override
     public Mono<TrainResponse> getById(Long id) {
-        return trainRepository.findById(id)
+        return trainCache.findById(id)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException(TRAIN_NOT_FOUND)))
                 .map(trainMapper::toResponse);
     }
 
     @Override
     public Flux<TrainResponse> getAll() {
-        return trainRepository.findAll().map(trainMapper::toResponse);
+        return trainCache.findAll(trainRepository::findAll).map(trainMapper::toResponse);
     }
 }

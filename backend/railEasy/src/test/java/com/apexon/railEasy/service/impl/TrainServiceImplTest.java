@@ -14,9 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,12 +71,38 @@ class TrainServiceImplTest {
     }
 
     @Test
+    void getById_returnsFromCacheWhenPresent() {
+        Train train = Train.builder().id(1L).trainNumber("12621").trainName("Tamil Nadu Express")
+                .totalSeatsPerClass(64).active(true).build();
+        TrainResponse response = TrainResponse.builder().id(1L).trainNumber("12621").build();
+        when(trainCache.findById(1L)).thenReturn(Mono.just(train));
+        when(trainMapper.toResponse(train)).thenReturn(response);
+
+        StepVerifier.create(trainService.getById(1L))
+                .expectNext(response)
+                .verifyComplete();
+    }
+
+    @Test
     void getById_returnsNotFoundWhenMissing() {
-        when(trainRepository.findById(99L)).thenReturn(Mono.empty());
+        when(trainCache.findById(99L)).thenReturn(Mono.empty());
 
         StepVerifier.create(trainService.getById(99L))
                 .expectError(ResourceNotFoundException.class)
                 .verify();
+    }
+
+    @Test
+    void getAll_servesThroughCache() {
+        Train train = Train.builder().id(1L).trainNumber("12621").trainName("Tamil Nadu Express")
+                .totalSeatsPerClass(64).active(true).build();
+        TrainResponse response = TrainResponse.builder().id(1L).trainNumber("12621").build();
+        when(trainCache.findAll(any())).thenReturn(Flux.just(train));
+        when(trainMapper.toResponse(train)).thenReturn(response);
+
+        StepVerifier.create(trainService.getAll())
+                .expectNext(response)
+                .verifyComplete();
     }
 
     @Test
